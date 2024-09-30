@@ -39,10 +39,7 @@
 * 结合起来，这个命令通常用于开发和调试RISC-V系统，方便开发者进行深入的分析和调试。
 
 <div align = "center">
-<img src="C:\Users\fe-wlei\Desktop\picture\startqemu.jpg" style="zoom: 50%"; alt="alt text">
-</div>
-<div align = "center">
-<img src="../picture/startqemu.jpg" style="zoom: 50%"; alt="alt text">
+<img src="..\picture\startqemu.jpg" style="zoom: 50%"; alt="alt text">
 </div>
 
 
@@ -59,7 +56,7 @@
 * 结合起来，这个命令是用来启动GDB并连接到正在运行的QEMU虚拟机，以便进行内核调试。
 
 <div align = "center">
-<img src="C:\Users\fe-wlei\Desktop\picture\startgdb.jpg" style="zoom: 50%"; alt="alt text">
+<img src="..\picture\startgdb.jpg" style="zoom: 50%"; alt="alt text">
 </div>
 
 * （三）使用`make gdb`调试，输入指令`x/10i $pc `查看即将执行的10条汇编指令，其中在地址为`0x1010`的指令处会跳转，故实际执行的为以下指令：
@@ -71,7 +68,7 @@
 * （四）使用`make gdb`调试，输入指令`x/10i 0x80000000 `查看显示 0x80000000 处的10条汇编指令。该地址处加载的是作为bootloader的`OpenSBI.bin`，该处的作用为加载操作系统内核并启动操作系统的执行：
 
 <div align = "center">
-<img src="C:\Users\fe-wlei\Desktop\picture\content.jpg" style="zoom: 50%"; alt="alt text">
+<img src="..\picture\content.jpg" style="zoom: 50%"; alt="alt text">
 </div>
 
 * （五）使用`make gdb`调试，输入指令`x/10xw 0x80000000 `显示 0x80000000 处的10条数据，格式为16进制32bit，可以看到寄存器中存放的具体数据值：
