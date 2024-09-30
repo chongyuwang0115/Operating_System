@@ -156,6 +156,7 @@
 <div align = "center">
 <img src="..\picture\result2.jpg" style="zoom: 50%"; alt="alt text">
 </div>
+
 ## 重要的知识点
 
 ### 相关联的：
