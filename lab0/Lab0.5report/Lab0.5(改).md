@@ -42,8 +42,9 @@
 <img src="C:\Users\fe-wlei\Desktop\picture\startqemu.jpg" style="zoom: 50%"; alt="alt text">
 </div>
 <div align = "center">
-![](lab0/picture/startqemu.jpg)
+<img src="lab0/picture/startqemu.jpg" style="zoom: 50%"; alt="alt text">
 </div>
+
 
 * （二）随后我们启动RISC-V架构的GDB调试器：
 
