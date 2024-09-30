@@ -42,7 +42,7 @@
 <img src="C:\Users\fe-wlei\Desktop\picture\startqemu.jpg" style="zoom: 50%"; alt="alt text">
 </div>
 <div align = "center">
-<img src="picture/startqemu.jpg" style="zoom: 50%"; alt="alt text">
+<img src="../picture/startqemu.jpg" style="zoom: 50%"; alt="alt text">
 </div>
 
 
