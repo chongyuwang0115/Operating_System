@@ -62,7 +62,7 @@
 * （三）使用`make gdb`调试，输入指令`x/10i $pc `查看即将执行的10条汇编指令，其中在地址为`0x1010`的指令处会跳转，故实际执行的为以下指令：
 
 <div align = "center">
-<img src="C:\Users\fe-wlei\Desktop\picture\tenins.jpg" style="zoom: 50%"; alt="alt text">
+<img src="..\picture\tenins.jpg" style="zoom: 50%"; alt="alt text">
 </div>
 
 * （四）使用`make gdb`调试，输入指令`x/10i 0x80000000 `查看显示 0x80000000 处的10条汇编指令。该地址处加载的是作为bootloader的`OpenSBI.bin`，该处的作用为加载操作系统内核并启动操作系统的执行：
@@ -74,31 +74,31 @@
 * （五）使用`make gdb`调试，输入指令`x/10xw 0x80000000 `显示 0x80000000 处的10条数据，格式为16进制32bit，可以看到寄存器中存放的具体数据值：
 
 <div align = "center">
-<img src="C:\Users\fe-wlei\Desktop\picture\data.jpg" style="zoom: 50%"; alt="alt text">
+<img src="..\picture\data.jpg" style="zoom: 50%"; alt="alt text">
 </div>
 
 * （六）输入`si`单步执行，先执行三次，参照先前的整体代码，再执行一次，使用形如`info r t0`的指令查看涉及到的寄存器结果，由于在上一步的执行过程中t0 = [t0 + 24] = 0x80000000，值变化了，所以t0寄存器里的值也改变了：
 
 <div align = "center">
-<img src="C:\Users\fe-wlei\Desktop\picture\si.jpg" style="zoom: 50%"; alt="alt text">
+<img src="..\picture\si.jpg" style="zoom: 50%"; alt="alt text">
 </div>
 
 * （七）随后我们考虑熟悉断点相关的功能。首先需要先查看一下程序`kern_entry`的结构：
 
 <div align = "center">
-<img src="C:\Users\fe-wlei\Desktop\picture\source1.jpg" style="zoom: 50%"; alt="alt text">
+<img src="..\picture\source1.jpg" style="zoom: 50%"; alt="alt text">
 </div>
 
 * （八）设置点前，我们输入指令`x/10i 0x80200000 `查看显示 0x80200000 处的10条汇编指令，方便与后续操作进行对应：
 
 <div align = "center">
-<img src="C:\Users\fe-wlei\Desktop\picture\breakinfo.jpg" style="zoom: 50%"; alt="alt text">
+<img src="..\picture\breakinfo.jpg" style="zoom: 50%"; alt="alt text">
 </div>
 
 * （九）接着输入指令`break kern_entry`，在目标函数kern_entry的第一条指令处设置断点，输入`continue`执行直到断点：
 
 <div align = "center">
-<img src="C:\Users\fe-wlei\Desktop\picture\breakinfo.jpg" style="zoom: 50%"; alt="alt text">
+<img src="..\picture\breakinfo.jpg" style="zoom: 50%"; alt="alt text">
 </div>
 
 * 根据上图我们可以看到，地址`0x80200000`由`kernel.ld`中定义的`BASE_ADDRESS`（加载地址）所决定，标签`kern_entry`是在`kernel.ld`中定义的`ENTRY`（入口点）。
@@ -115,13 +115,13 @@
 * （十）随后对于程序`kern_init`设置断点。首先需要先查看一下程序`kern_init`的结构：
 
 <div align = "center">
-<img src="C:\Users\fe-wlei\Desktop\picture\source2.jpg" style="zoom: 50%"; alt="alt text">
+<img src="..\picture\source2.jpg" style="zoom: 50%"; alt="alt text">
 </div>
 
 * （十一）接着输入指令`break kern_init`，输出如下：
 
 <div align = "center">
-<img src="C:\Users\fe-wlei\Desktop\picture\breaksource2.jpg" style="zoom: 50%"; alt="alt text">
+<img src="..\picture\breaksource2.jpg" style="zoom: 50%"; alt="alt text">
 </div>
 
 * 这里就指向了之前显示为`<kern_init>`的地址`0x8020000c`
@@ -134,7 +134,7 @@
 * （十二）随后我们输入`continue`，接着输入`disassemble kern_init`查看反汇编代码：
 
 <div align = "center">
-<img src="C:\Users\fe-wlei\Desktop\picture\disassemble.jpg" style="zoom: 50%"; alt="alt text">
+<img src="..\picture\disassemble.jpg" style="zoom: 50%"; alt="alt text">
 </div>
 
 * 可以看到这个函数最后一个指令是`j 0x8020003c <kern_init+48>`，也就是跳转到自己，所以代码会在这里一直循环下去。
@@ -142,7 +142,7 @@
 * （十三）最后我们输入`continue`，debug窗口出现以下输出：
 
 <div align = "center">
-<img src="C:\Users\fe-wlei\Desktop\picture\break2.jpg" style="zoom: 50%"; alt="alt text">
+<img src="..\picture\break2.jpg" style="zoom: 50%"; alt="alt text">
 </div>
 
 * 至此我们完成了Lab0.5的内容，熟悉了相关gdb指令的调试方法以及调试的整体流程。
