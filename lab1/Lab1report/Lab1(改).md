@@ -74,7 +74,7 @@
 * 得到结果如下所示：
 
 <div align = "center">
-<img src="C:\Users\fe-wlei\Desktop\picture\result1.jpg" style="zoom: 50%"; alt="alt text">
+<img src="..\picture\result1.jpg" style="zoom: 50%"; alt="alt text">
 </div>
 
 ## 扩展练习一
@@ -154,7 +154,7 @@
 * 得到结果如下所示：
 
 <div align = "center">
-<img src="C:\Users\fe-wlei\Desktop\picture\result2.jpg" style="zoom: 50%"; alt="alt text">
+<img src="..\picture\result2.jpg" style="zoom: 50%"; alt="alt text">
 </div>
 ## 重要的知识点
 
