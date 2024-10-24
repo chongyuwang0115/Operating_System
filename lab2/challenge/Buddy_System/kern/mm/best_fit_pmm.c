@@ -265,20 +265,20 @@ best_fit_check(void)
         assert(PageProperty(p));
         count++, total += p->property;
     }
-    assert(total == nr_free_pages());//通过遍历 free_list 空闲链表，检查每个页框是否被标记为“可用” (PageProperty(p))，并记录页框的数量 (count) 和总大小 (total)。最后，确保 total 等于当前自由页的总数量 (nr_free_pages())。这验证了链表的准确性。
+    assert(total == nr_free_pages());
 
     basic_check();
 
     struct Page *p0 = alloc_pages(26), *p1;
     assert(p0 != NULL);
-    assert(!PageProperty(p0));//尝试分配 26 页并确保成功，且 p0 的属性不再是可用状态。
+    assert(!PageProperty(p0));
 
     list_entry_t free_list_store = free_list;
     list_init(&free_list);
     assert(list_empty(&free_list));
-    assert(alloc_page() == NULL);//保存当前的空闲链表，然后清空它并验证为空。再次检查分配时，确保返回 NULL。
+    assert(alloc_page() == NULL);
 
-    unsigned int nr_free_store = nr_free;//保存当前的空闲页计数，将其置为零。释放 p0 所占用的 26 页。
+    unsigned int nr_free_store = nr_free;
     nr_free = 0;
     //.........................................................
     // 先释放
@@ -286,7 +286,7 @@ best_fit_check(void)
     // 首先检查是否对齐2
     p0 = alloc_pages(6);  // 8- 8+ 16+
     p1 = alloc_pages(10); // 8- 8+ 16-
-    assert((p0 + 8)->property == 8);//通过断言assert((p0 + 8)->property == 8)检查内存是否对齐，p0 + 8表示p0之后的空闲部分属性应为8页，即剩余的8页没有被分配。
+    assert((p0 + 8)->property == 8);
     free_pages(p1, 10); // 8- 8+ 16+
     assert((p0 + 8)->property == 8);
     assert(p1->property == 16);
@@ -336,7 +336,7 @@ best_fit_check(void)
         count--, total -= p->property;
     }
     assert(count == 0);
-    assert(total == 0);//再次遍历空闲链表，确保链表的前后指针相互指向，同时确认所有页框都已被释放，count 和 total 归零。
+    assert(total == 0);
 }
 
 // 这个结构体在

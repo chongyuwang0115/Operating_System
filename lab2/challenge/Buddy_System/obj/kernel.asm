@@ -1293,7 +1293,7 @@ ffffffffc020085a:	9c39                	addw	s0,s0,a4
     while ((le = list_next(le)) != &free_list)
 ffffffffc020085c:	ff2796e3          	bne	a5,s2,ffffffffc0200848 <best_fit_check+0x2a>
     }
-    assert(total == nr_free_pages());//通过遍历 free_list 空闲链表，检查每个页框是否被标记为“可用” (PageProperty(p))，并记录页框的数量 (count) 和总大小 (total)。最后，确保 total 等于当前自由页的总数量 (nr_free_pages())。这验证了链表的准确性。
+    assert(total == nr_free_pages());
 ffffffffc0200860:	89a2                	mv	s3,s0
 ffffffffc0200862:	447000ef          	jal	ra,ffffffffc02014a8 <nr_free_pages>
 ffffffffc0200866:	5b351c63          	bne	a0,s3,ffffffffc0200e1e <best_fit_check+0x600>
@@ -1464,32 +1464,32 @@ ffffffffc02009d4:	89aa                	mv	s3,a0
 ffffffffc02009d6:	2c050463          	beqz	a0,ffffffffc0200c9e <best_fit_check+0x480>
 ffffffffc02009da:	651c                	ld	a5,8(a0)
 ffffffffc02009dc:	8385                	srli	a5,a5,0x1
-    assert(!PageProperty(p0));//尝试分配 26 页并确保成功，且 p0 的属性不再是可用状态。
+    assert(!PageProperty(p0));
 ffffffffc02009de:	8b85                	andi	a5,a5,1
 ffffffffc02009e0:	34079f63          	bnez	a5,ffffffffc0200d3e <best_fit_check+0x520>
 
     list_entry_t free_list_store = free_list;
     list_init(&free_list);
     assert(list_empty(&free_list));
-    assert(alloc_page() == NULL);//保存当前的空闲链表，然后清空它并验证为空。再次检查分配时，确保返回 NULL。
+    assert(alloc_page() == NULL);
 ffffffffc02009e4:	4505                	li	a0,1
     list_entry_t free_list_store = free_list;
 ffffffffc02009e6:	00093a83          	ld	s5,0(s2)
 ffffffffc02009ea:	00893a03          	ld	s4,8(s2)
 ffffffffc02009ee:	01293023          	sd	s2,0(s2)
 ffffffffc02009f2:	01293423          	sd	s2,8(s2)
-    assert(alloc_page() == NULL);//保存当前的空闲链表，然后清空它并验证为空。再次检查分配时，确保返回 NULL。
+    assert(alloc_page() == NULL);
 ffffffffc02009f6:	235000ef          	jal	ra,ffffffffc020142a <alloc_pages>
 ffffffffc02009fa:	32051263          	bnez	a0,ffffffffc0200d1e <best_fit_check+0x500>
 
-    unsigned int nr_free_store = nr_free;//保存当前的空闲页计数，将其置为零。释放 p0 所占用的 26 页。
+    unsigned int nr_free_store = nr_free;
     nr_free = 0;
     //.........................................................
     // 先释放
     free_pages(p0, 26); // 32+  (-:已分配 +: 已释放)
 ffffffffc02009fe:	45e9                	li	a1,26
 ffffffffc0200a00:	854e                	mv	a0,s3
-    unsigned int nr_free_store = nr_free;//保存当前的空闲页计数，将其置为零。释放 p0 所占用的 26 页。
+    unsigned int nr_free_store = nr_free;
 ffffffffc0200a02:	01092b03          	lw	s6,16(s2)
     nr_free = 0;
 ffffffffc0200a06:	00005797          	auipc	a5,0x5
@@ -1504,12 +1504,12 @@ ffffffffc0200a18:	89aa                	mv	s3,a0
     p1 = alloc_pages(10); // 8- 8+ 16-
 ffffffffc0200a1a:	4529                	li	a0,10
 ffffffffc0200a1c:	20f000ef          	jal	ra,ffffffffc020142a <alloc_pages>
-    assert((p0 + 8)->property == 8);//通过断言assert((p0 + 8)->property == 8)检查内存是否对齐，p0 + 8表示p0之后的空闲部分属性应为8页，即剩余的8页没有被分配。
+    assert((p0 + 8)->property == 8);
 ffffffffc0200a20:	1509ac03          	lw	s8,336(s3)
 ffffffffc0200a24:	47a1                	li	a5,8
     p1 = alloc_pages(10); // 8- 8+ 16-
 ffffffffc0200a26:	8baa                	mv	s7,a0
-    assert((p0 + 8)->property == 8);//通过断言assert((p0 + 8)->property == 8)检查内存是否对齐，p0 + 8表示p0之后的空闲部分属性应为8页，即剩余的8页没有被分配。
+    assert((p0 + 8)->property == 8);
 ffffffffc0200a28:	54fc1b63          	bne	s8,a5,ffffffffc0200f7e <best_fit_check+0x760>
     free_pages(p1, 10); // 8- 8+ 16+
 ffffffffc0200a2c:	45a9                	li	a1,10
@@ -1666,7 +1666,7 @@ ffffffffc0200b52:	ff2793e3          	bne	a5,s2,ffffffffc0200b38 <best_fit_check+
     }
     assert(count == 0);
 ffffffffc0200b56:	44049463          	bnez	s1,ffffffffc0200f9e <best_fit_check+0x780>
-    assert(total == 0);//再次遍历空闲链表，确保链表的前后指针相互指向，同时确认所有页框都已被释放，count 和 total 归零。
+    assert(total == 0);
 ffffffffc0200b5a:	2a041263          	bnez	s0,ffffffffc0200dfe <best_fit_check+0x5e0>
 }
 ffffffffc0200b5e:	60a6                	ld	ra,72(sp)
@@ -1804,7 +1804,7 @@ ffffffffc0200d0e:	0f500593          	li	a1,245
 ffffffffc0200d12:	00001517          	auipc	a0,0x1
 ffffffffc0200d16:	63650513          	addi	a0,a0,1590 # ffffffffc0202348 <commands+0x520>
 ffffffffc0200d1a:	dd0ff0ef          	jal	ra,ffffffffc02002ea <__panic>
-    assert(alloc_page() == NULL);//保存当前的空闲链表，然后清空它并验证为空。再次检查分配时，确保返回 NULL。
+    assert(alloc_page() == NULL);
 ffffffffc0200d1e:	00001697          	auipc	a3,0x1
 ffffffffc0200d22:	78a68693          	addi	a3,a3,1930 # ffffffffc02024a8 <commands+0x680>
 ffffffffc0200d26:	00001617          	auipc	a2,0x1
@@ -1813,7 +1813,7 @@ ffffffffc0200d2e:	11700593          	li	a1,279
 ffffffffc0200d32:	00001517          	auipc	a0,0x1
 ffffffffc0200d36:	61650513          	addi	a0,a0,1558 # ffffffffc0202348 <commands+0x520>
 ffffffffc0200d3a:	db0ff0ef          	jal	ra,ffffffffc02002ea <__panic>
-    assert(!PageProperty(p0));//尝试分配 26 页并确保成功，且 p0 的属性不再是可用状态。
+    assert(!PageProperty(p0));
 ffffffffc0200d3e:	00001697          	auipc	a3,0x1
 ffffffffc0200d42:	7ea68693          	addi	a3,a3,2026 # ffffffffc0202528 <commands+0x700>
 ffffffffc0200d46:	00001617          	auipc	a2,0x1
@@ -1867,7 +1867,7 @@ ffffffffc0200dee:	13900593          	li	a1,313
 ffffffffc0200df2:	00001517          	auipc	a0,0x1
 ffffffffc0200df6:	55650513          	addi	a0,a0,1366 # ffffffffc0202348 <commands+0x520>
 ffffffffc0200dfa:	cf0ff0ef          	jal	ra,ffffffffc02002ea <__panic>
-    assert(total == 0);//再次遍历空闲链表，确保链表的前后指针相互指向，同时确认所有页框都已被释放，count 和 total 归零。
+    assert(total == 0);
 ffffffffc0200dfe:	00002697          	auipc	a3,0x2
 ffffffffc0200e02:	84a68693          	addi	a3,a3,-1974 # ffffffffc0202648 <commands+0x820>
 ffffffffc0200e06:	00001617          	auipc	a2,0x1
@@ -1876,7 +1876,7 @@ ffffffffc0200e0e:	15300593          	li	a1,339
 ffffffffc0200e12:	00001517          	auipc	a0,0x1
 ffffffffc0200e16:	53650513          	addi	a0,a0,1334 # ffffffffc0202348 <commands+0x520>
 ffffffffc0200e1a:	cd0ff0ef          	jal	ra,ffffffffc02002ea <__panic>
-    assert(total == nr_free_pages());//通过遍历 free_list 空闲链表，检查每个页框是否被标记为“可用” (PageProperty(p))，并记录页框的数量 (count) 和总大小 (total)。最后，确保 total 等于当前自由页的总数量 (nr_free_pages())。这验证了链表的准确性。
+    assert(total == nr_free_pages());
 ffffffffc0200e1e:	00001697          	auipc	a3,0x1
 ffffffffc0200e22:	54268693          	addi	a3,a3,1346 # ffffffffc0202360 <commands+0x538>
 ffffffffc0200e26:	00001617          	auipc	a2,0x1
@@ -1975,7 +1975,7 @@ ffffffffc0200f6e:	12300593          	li	a1,291
 ffffffffc0200f72:	00001517          	auipc	a0,0x1
 ffffffffc0200f76:	3d650513          	addi	a0,a0,982 # ffffffffc0202348 <commands+0x520>
 ffffffffc0200f7a:	b70ff0ef          	jal	ra,ffffffffc02002ea <__panic>
-    assert((p0 + 8)->property == 8);//通过断言assert((p0 + 8)->property == 8)检查内存是否对齐，p0 + 8表示p0之后的空闲部分属性应为8页，即剩余的8页没有被分配。
+    assert((p0 + 8)->property == 8);
 ffffffffc0200f7e:	00001697          	auipc	a3,0x1
 ffffffffc0200f82:	5c268693          	addi	a3,a3,1474 # ffffffffc0202540 <commands+0x718>
 ffffffffc0200f86:	00001617          	auipc	a2,0x1
