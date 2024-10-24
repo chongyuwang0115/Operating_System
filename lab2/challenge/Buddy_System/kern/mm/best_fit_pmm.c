@@ -230,7 +230,7 @@ basic_check(void)
     free_page(p0);
     free_page(p1);
     free_page(p2);
-    assert(nr_free == 3);//确保释放后，空闲页面数量正确
+    assert(nr_free == 3);//确保释放后，空闲页面数量正确.
 
     assert((p0 = alloc_page()) != NULL);
     assert((p1 = alloc_page()) != NULL);
