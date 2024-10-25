@@ -1207,7 +1207,7 @@ ffffffffc02007fc:	6142                	ld	sp,16(sp)
     sret
 ffffffffc02007fe:	10200073          	sret
 
-ffffffffc0200802 <best_fit_init>:
+ffffffffc0200802 <buddy_system_init>:
  * list_init - initialize a new entry
  * @elm:        new entry to be initialized
  * */
@@ -1220,7 +1220,7 @@ ffffffffc020080a:	e79c                	sd	a5,8(a5)
 ffffffffc020080c:	e39c                	sd	a5,0(a5)
 // 初始化内存管理器
 static void
-best_fit_init(void)
+buddy_system_init(void)
 {
     list_init(&free_list);
     nr_free = 0;
@@ -1228,10 +1228,10 @@ ffffffffc020080e:	0007a823          	sw	zero,16(a5)
 }
 ffffffffc0200812:	8082                	ret
 
-ffffffffc0200814 <best_fit_nr_free_pages>:
+ffffffffc0200814 <buddy_system_nr_free_pages>:
 
 static size_t
-best_fit_nr_free_pages(void)
+buddy_system_nr_free_pages(void)
 {
     return nr_free;
 }
@@ -1239,12 +1239,12 @@ ffffffffc0200814:	00006517          	auipc	a0,0x6
 ffffffffc0200818:	80c56503          	lwu	a0,-2036(a0) # ffffffffc0206020 <free_area+0x10>
 ffffffffc020081c:	8082                	ret
 
-ffffffffc020081e <best_fit_check>:
+ffffffffc020081e <buddy_system_check>:
     free_page(p2);
 }
 
 static void
-best_fit_check(void)
+buddy_system_check(void)
 {
 ffffffffc020081e:	715d                	addi	sp,sp,-80
 ffffffffc0200820:	f84a                	sd	s2,48(sp)
@@ -1269,7 +1269,7 @@ ffffffffc020083e:	e062                	sd	s8,0(sp)
     int count = 0, total = 0;
     list_entry_t *le = &free_list;
     while ((le = list_next(le)) != &free_list)
-ffffffffc0200840:	33278b63          	beq	a5,s2,ffffffffc0200b76 <best_fit_check+0x358>
+ffffffffc0200840:	33278b63          	beq	a5,s2,ffffffffc0200b76 <buddy_system_check+0x358>
     int count = 0, total = 0;
 ffffffffc0200844:	4401                	li	s0,0
 ffffffffc0200846:	4481                	li	s1,0
@@ -1284,45 +1284,45 @@ ffffffffc0200848:	ff07b703          	ld	a4,-16(a5)
         struct Page *p = le2page(le, page_link);
         assert(PageProperty(p));
 ffffffffc020084c:	8b09                	andi	a4,a4,2
-ffffffffc020084e:	34070863          	beqz	a4,ffffffffc0200b9e <best_fit_check+0x380>
+ffffffffc020084e:	34070863          	beqz	a4,ffffffffc0200b9e <buddy_system_check+0x380>
         count++, total += p->property;
 ffffffffc0200852:	ff87a703          	lw	a4,-8(a5)
 ffffffffc0200856:	679c                	ld	a5,8(a5)
 ffffffffc0200858:	2485                	addiw	s1,s1,1
 ffffffffc020085a:	9c39                	addw	s0,s0,a4
     while ((le = list_next(le)) != &free_list)
-ffffffffc020085c:	ff2796e3          	bne	a5,s2,ffffffffc0200848 <best_fit_check+0x2a>
+ffffffffc020085c:	ff2796e3          	bne	a5,s2,ffffffffc0200848 <buddy_system_check+0x2a>
     }
     assert(total == nr_free_pages());
 ffffffffc0200860:	89a2                	mv	s3,s0
 ffffffffc0200862:	447000ef          	jal	ra,ffffffffc02014a8 <nr_free_pages>
-ffffffffc0200866:	5b351c63          	bne	a0,s3,ffffffffc0200e1e <best_fit_check+0x600>
+ffffffffc0200866:	5b351c63          	bne	a0,s3,ffffffffc0200e1e <buddy_system_check+0x600>
     assert((p0 = alloc_page()) != NULL);
 ffffffffc020086a:	4505                	li	a0,1
 ffffffffc020086c:	3bf000ef          	jal	ra,ffffffffc020142a <alloc_pages>
 ffffffffc0200870:	8aaa                	mv	s5,a0
-ffffffffc0200872:	76050663          	beqz	a0,ffffffffc0200fde <best_fit_check+0x7c0>
+ffffffffc0200872:	76050663          	beqz	a0,ffffffffc0200fde <buddy_system_check+0x7c0>
     assert((p1 = alloc_page()) != NULL);
 ffffffffc0200876:	4505                	li	a0,1
 ffffffffc0200878:	3b3000ef          	jal	ra,ffffffffc020142a <alloc_pages>
 ffffffffc020087c:	8a2a                	mv	s4,a0
-ffffffffc020087e:	74050063          	beqz	a0,ffffffffc0200fbe <best_fit_check+0x7a0>
+ffffffffc020087e:	74050063          	beqz	a0,ffffffffc0200fbe <buddy_system_check+0x7a0>
     assert((p2 = alloc_page()) != NULL);// 通过断言确保每次调用该函数都返回一个有效的指针（即不为 NULL），这表明成功分配了页面。
 ffffffffc0200882:	4505                	li	a0,1
 ffffffffc0200884:	3a7000ef          	jal	ra,ffffffffc020142a <alloc_pages>
 ffffffffc0200888:	89aa                	mv	s3,a0
-ffffffffc020088a:	4c050a63          	beqz	a0,ffffffffc0200d5e <best_fit_check+0x540>
+ffffffffc020088a:	4c050a63          	beqz	a0,ffffffffc0200d5e <buddy_system_check+0x540>
     assert(p0 != p1 && p0 != p2 && p1 != p2);//确保分配的三个页面是不同的，即每次分配的页面都是唯一的。
-ffffffffc020088e:	7b4a8863          	beq	s5,s4,ffffffffc020103e <best_fit_check+0x820>
-ffffffffc0200892:	7aaa8663          	beq	s5,a0,ffffffffc020103e <best_fit_check+0x820>
-ffffffffc0200896:	7aaa0463          	beq	s4,a0,ffffffffc020103e <best_fit_check+0x820>
+ffffffffc020088e:	7b4a8863          	beq	s5,s4,ffffffffc020103e <buddy_system_check+0x820>
+ffffffffc0200892:	7aaa8663          	beq	s5,a0,ffffffffc020103e <buddy_system_check+0x820>
+ffffffffc0200896:	7aaa0463          	beq	s4,a0,ffffffffc020103e <buddy_system_check+0x820>
     assert(page_ref(p0) == 0 && page_ref(p1) == 0 && page_ref(p2) == 0);//确保每个页面的引用计数都初始化为0。这通常意味着页面尚未被任何其他结构引用。
 ffffffffc020089a:	000aa783          	lw	a5,0(s5)
-ffffffffc020089e:	78079063          	bnez	a5,ffffffffc020101e <best_fit_check+0x800>
+ffffffffc020089e:	78079063          	bnez	a5,ffffffffc020101e <buddy_system_check+0x800>
 ffffffffc02008a2:	000a2783          	lw	a5,0(s4)
-ffffffffc02008a6:	76079c63          	bnez	a5,ffffffffc020101e <best_fit_check+0x800>
+ffffffffc02008a6:	76079c63          	bnez	a5,ffffffffc020101e <buddy_system_check+0x800>
 ffffffffc02008aa:	411c                	lw	a5,0(a0)
-ffffffffc02008ac:	76079963          	bnez	a5,ffffffffc020101e <best_fit_check+0x800>
+ffffffffc02008ac:	76079963          	bnez	a5,ffffffffc020101e <buddy_system_check+0x800>
 extern struct Page *pages;
 extern size_t npage;
 extern const size_t nbase;
@@ -1347,7 +1347,7 @@ ffffffffc02008dc:	9732                	add	a4,a4,a2
 static inline uintptr_t page2pa(struct Page *page) {
     return page2ppn(page) << PGSHIFT;
 ffffffffc02008de:	0732                	slli	a4,a4,0xc
-ffffffffc02008e0:	70d77f63          	bgeu	a4,a3,ffffffffc0200ffe <best_fit_check+0x7e0>
+ffffffffc02008e0:	70d77f63          	bgeu	a4,a3,ffffffffc0200ffe <buddy_system_check+0x7e0>
 static inline ppn_t page2ppn(struct Page *page) { return page - pages + nbase; }
 ffffffffc02008e4:	40fa0733          	sub	a4,s4,a5
 ffffffffc02008e8:	870d                	srai	a4,a4,0x3
@@ -1356,7 +1356,7 @@ ffffffffc02008ee:	9732                	add	a4,a4,a2
     return page2ppn(page) << PGSHIFT;
 ffffffffc02008f0:	0732                	slli	a4,a4,0xc
     assert(page2pa(p1) < npage * PGSIZE);
-ffffffffc02008f2:	56d77663          	bgeu	a4,a3,ffffffffc0200e5e <best_fit_check+0x640>
+ffffffffc02008f2:	56d77663          	bgeu	a4,a3,ffffffffc0200e5e <buddy_system_check+0x640>
 static inline ppn_t page2ppn(struct Page *page) { return page - pages + nbase; }
 ffffffffc02008f6:	40f507b3          	sub	a5,a0,a5
 ffffffffc02008fa:	878d                	srai	a5,a5,0x3
@@ -1365,7 +1365,7 @@ ffffffffc0200900:	97b2                	add	a5,a5,a2
     return page2ppn(page) << PGSHIFT;
 ffffffffc0200902:	07b2                	slli	a5,a5,0xc
     assert(page2pa(p2) < npage * PGSIZE);//检查每个页面的物理地址是否在有效范围内。确保地址小于总页数乘以每页大小。
-ffffffffc0200904:	32d7fd63          	bgeu	a5,a3,ffffffffc0200c3e <best_fit_check+0x420>
+ffffffffc0200904:	32d7fd63          	bgeu	a5,a3,ffffffffc0200c3e <buddy_system_check+0x420>
     assert(alloc_page() == NULL);//由于没有可用的页面，分配页面应该返回 NULL
 ffffffffc0200908:	4505                	li	a0,1
     list_entry_t free_list_store = free_list;
@@ -1381,7 +1381,7 @@ ffffffffc020091e:	00005797          	auipc	a5,0x5
 ffffffffc0200922:	7007a123          	sw	zero,1794(a5) # ffffffffc0206020 <free_area+0x10>
     assert(alloc_page() == NULL);//由于没有可用的页面，分配页面应该返回 NULL
 ffffffffc0200926:	305000ef          	jal	ra,ffffffffc020142a <alloc_pages>
-ffffffffc020092a:	2e051a63          	bnez	a0,ffffffffc0200c1e <best_fit_check+0x400>
+ffffffffc020092a:	2e051a63          	bnez	a0,ffffffffc0200c1e <buddy_system_check+0x400>
     free_page(p0);
 ffffffffc020092e:	4585                	li	a1,1
 ffffffffc0200930:	8556                	mv	a0,s5
@@ -1394,47 +1394,47 @@ ffffffffc020093a:	32f000ef          	jal	ra,ffffffffc0201468 <free_pages>
 ffffffffc020093e:	4585                	li	a1,1
 ffffffffc0200940:	854e                	mv	a0,s3
 ffffffffc0200942:	327000ef          	jal	ra,ffffffffc0201468 <free_pages>
-    assert(nr_free == 3);//确保释放后，空闲页面数量正确
+    assert(nr_free == 3);//确保释放后，空闲页面数量正确.
 ffffffffc0200946:	01092703          	lw	a4,16(s2)
 ffffffffc020094a:	478d                	li	a5,3
-ffffffffc020094c:	2af71963          	bne	a4,a5,ffffffffc0200bfe <best_fit_check+0x3e0>
+ffffffffc020094c:	2af71963          	bne	a4,a5,ffffffffc0200bfe <buddy_system_check+0x3e0>
     assert((p0 = alloc_page()) != NULL);
 ffffffffc0200950:	4505                	li	a0,1
 ffffffffc0200952:	2d9000ef          	jal	ra,ffffffffc020142a <alloc_pages>
 ffffffffc0200956:	89aa                	mv	s3,a0
-ffffffffc0200958:	28050363          	beqz	a0,ffffffffc0200bde <best_fit_check+0x3c0>
+ffffffffc0200958:	28050363          	beqz	a0,ffffffffc0200bde <buddy_system_check+0x3c0>
     assert((p1 = alloc_page()) != NULL);
 ffffffffc020095c:	4505                	li	a0,1
 ffffffffc020095e:	2cd000ef          	jal	ra,ffffffffc020142a <alloc_pages>
 ffffffffc0200962:	8aaa                	mv	s5,a0
-ffffffffc0200964:	30050d63          	beqz	a0,ffffffffc0200c7e <best_fit_check+0x460>
+ffffffffc0200964:	30050d63          	beqz	a0,ffffffffc0200c7e <buddy_system_check+0x460>
     assert((p2 = alloc_page()) != NULL);//再次尝试分配页面，检查是否能够成功分配并且返回的页面是否与之前释放的页面一致。
 ffffffffc0200968:	4505                	li	a0,1
 ffffffffc020096a:	2c1000ef          	jal	ra,ffffffffc020142a <alloc_pages>
 ffffffffc020096e:	8a2a                	mv	s4,a0
-ffffffffc0200970:	2e050763          	beqz	a0,ffffffffc0200c5e <best_fit_check+0x440>
+ffffffffc0200970:	2e050763          	beqz	a0,ffffffffc0200c5e <buddy_system_check+0x440>
     assert(alloc_page() == NULL);//当所有的页框都已分配后，调用 alloc_page() 应该返回 NULL
 ffffffffc0200974:	4505                	li	a0,1
 ffffffffc0200976:	2b5000ef          	jal	ra,ffffffffc020142a <alloc_pages>
-ffffffffc020097a:	40051263          	bnez	a0,ffffffffc0200d7e <best_fit_check+0x560>
+ffffffffc020097a:	40051263          	bnez	a0,ffffffffc0200d7e <buddy_system_check+0x560>
     free_page(p0);
 ffffffffc020097e:	4585                	li	a1,1
 ffffffffc0200980:	854e                	mv	a0,s3
 ffffffffc0200982:	2e7000ef          	jal	ra,ffffffffc0201468 <free_pages>
     assert(!list_empty(&free_list));//确保在释放 p0 后，空闲链表 free_list 不为空。因为刚刚释放了一个页框，所以空闲链表应该包含至少一个元素。
 ffffffffc0200986:	00893783          	ld	a5,8(s2)
-ffffffffc020098a:	23278a63          	beq	a5,s2,ffffffffc0200bbe <best_fit_check+0x3a0>
+ffffffffc020098a:	23278a63          	beq	a5,s2,ffffffffc0200bbe <buddy_system_check+0x3a0>
     assert((p = alloc_page()) == p0);
 ffffffffc020098e:	4505                	li	a0,1
 ffffffffc0200990:	29b000ef          	jal	ra,ffffffffc020142a <alloc_pages>
-ffffffffc0200994:	36a99563          	bne	s3,a0,ffffffffc0200cfe <best_fit_check+0x4e0>
+ffffffffc0200994:	36a99563          	bne	s3,a0,ffffffffc0200cfe <buddy_system_check+0x4e0>
     assert(alloc_page() == NULL);//再次调用 alloc_page() 以分配内存。这里期望返回的页框是 p0，也就是说 p0 应该在释放后重新分配给我们。如果分配的页框不是 p0，则说明内存管理有问题，程序会抛出异常。
 ffffffffc0200998:	4505                	li	a0,1
 ffffffffc020099a:	291000ef          	jal	ra,ffffffffc020142a <alloc_pages>
-ffffffffc020099e:	34051063          	bnez	a0,ffffffffc0200cde <best_fit_check+0x4c0>
+ffffffffc020099e:	34051063          	bnez	a0,ffffffffc0200cde <buddy_system_check+0x4c0>
     assert(nr_free == 0);
 ffffffffc02009a2:	01092783          	lw	a5,16(s2)
-ffffffffc02009a6:	30079c63          	bnez	a5,ffffffffc0200cbe <best_fit_check+0x4a0>
+ffffffffc02009a6:	30079c63          	bnez	a5,ffffffffc0200cbe <buddy_system_check+0x4a0>
     free_page(p);
 ffffffffc02009aa:	854e                	mv	a0,s3
 ffffffffc02009ac:	4585                	li	a1,1
@@ -1461,12 +1461,12 @@ ffffffffc02009ce:	4569                	li	a0,26
 ffffffffc02009d0:	25b000ef          	jal	ra,ffffffffc020142a <alloc_pages>
 ffffffffc02009d4:	89aa                	mv	s3,a0
     assert(p0 != NULL);
-ffffffffc02009d6:	2c050463          	beqz	a0,ffffffffc0200c9e <best_fit_check+0x480>
+ffffffffc02009d6:	2c050463          	beqz	a0,ffffffffc0200c9e <buddy_system_check+0x480>
 ffffffffc02009da:	651c                	ld	a5,8(a0)
 ffffffffc02009dc:	8385                	srli	a5,a5,0x1
     assert(!PageProperty(p0));
 ffffffffc02009de:	8b85                	andi	a5,a5,1
-ffffffffc02009e0:	34079f63          	bnez	a5,ffffffffc0200d3e <best_fit_check+0x520>
+ffffffffc02009e0:	34079f63          	bnez	a5,ffffffffc0200d3e <buddy_system_check+0x520>
 
     list_entry_t free_list_store = free_list;
     list_init(&free_list);
@@ -1480,7 +1480,7 @@ ffffffffc02009ee:	01293023          	sd	s2,0(s2)
 ffffffffc02009f2:	01293423          	sd	s2,8(s2)
     assert(alloc_page() == NULL);
 ffffffffc02009f6:	235000ef          	jal	ra,ffffffffc020142a <alloc_pages>
-ffffffffc02009fa:	32051263          	bnez	a0,ffffffffc0200d1e <best_fit_check+0x500>
+ffffffffc02009fa:	32051263          	bnez	a0,ffffffffc0200d1e <buddy_system_check+0x500>
 
     unsigned int nr_free_store = nr_free;
     nr_free = 0;
@@ -1510,17 +1510,17 @@ ffffffffc0200a24:	47a1                	li	a5,8
     p1 = alloc_pages(10); // 8- 8+ 16-
 ffffffffc0200a26:	8baa                	mv	s7,a0
     assert((p0 + 8)->property == 8);
-ffffffffc0200a28:	54fc1b63          	bne	s8,a5,ffffffffc0200f7e <best_fit_check+0x760>
+ffffffffc0200a28:	54fc1b63          	bne	s8,a5,ffffffffc0200f7e <buddy_system_check+0x760>
     free_pages(p1, 10); // 8- 8+ 16+
 ffffffffc0200a2c:	45a9                	li	a1,10
 ffffffffc0200a2e:	23b000ef          	jal	ra,ffffffffc0201468 <free_pages>
     assert((p0 + 8)->property == 8);
 ffffffffc0200a32:	1509a783          	lw	a5,336(s3)
-ffffffffc0200a36:	53879463          	bne	a5,s8,ffffffffc0200f5e <best_fit_check+0x740>
+ffffffffc0200a36:	53879463          	bne	a5,s8,ffffffffc0200f5e <buddy_system_check+0x740>
     assert(p1->property == 16);
 ffffffffc0200a3a:	010bac03          	lw	s8,16(s7)
 ffffffffc0200a3e:	47c1                	li	a5,16
-ffffffffc0200a40:	4efc1f63          	bne	s8,a5,ffffffffc0200f3e <best_fit_check+0x720>
+ffffffffc0200a40:	4efc1f63          	bne	s8,a5,ffffffffc0200f3e <buddy_system_check+0x720>
     p1 = alloc_pages(16); // 8- 8+ 16-
 ffffffffc0200a44:	4541                	li	a0,16
 ffffffffc0200a46:	1e5000ef          	jal	ra,ffffffffc020142a <alloc_pages>
@@ -1532,7 +1532,7 @@ ffffffffc0200a4e:	854e                	mv	a0,s3
 ffffffffc0200a50:	219000ef          	jal	ra,ffffffffc0201468 <free_pages>
     assert(p0->property == 16);
 ffffffffc0200a54:	0109a783          	lw	a5,16(s3)
-ffffffffc0200a58:	4d879363          	bne	a5,s8,ffffffffc0200f1e <best_fit_check+0x700>
+ffffffffc0200a58:	4d879363          	bne	a5,s8,ffffffffc0200f1e <buddy_system_check+0x700>
     free_pages(p1, 16); // 32+
 ffffffffc0200a5c:	45c1                	li	a1,16
 ffffffffc0200a5e:	855e                	mv	a0,s7
@@ -1540,7 +1540,7 @@ ffffffffc0200a60:	209000ef          	jal	ra,ffffffffc0201468 <free_pages>
     assert(p0->property == 32);
 ffffffffc0200a64:	0109ac03          	lw	s8,16(s3)
 ffffffffc0200a68:	02000793          	li	a5,32
-ffffffffc0200a6c:	48fc1963          	bne	s8,a5,ffffffffc0200efe <best_fit_check+0x6e0>
+ffffffffc0200a6c:	48fc1963          	bne	s8,a5,ffffffffc0200efe <buddy_system_check+0x6e0>
 
     p0 = alloc_pages(8); // 8- 8+ 16+
 ffffffffc0200a70:	4521                	li	a0,8
@@ -1558,18 +1558,18 @@ ffffffffc0200a82:	1e7000ef          	jal	ra,ffffffffc0201468 <free_pages>
     assert(p1->property == 16);
 ffffffffc0200a86:	010ba703          	lw	a4,16(s7)
 ffffffffc0200a8a:	47c1                	li	a5,16
-ffffffffc0200a8c:	44f71963          	bne	a4,a5,ffffffffc0200ede <best_fit_check+0x6c0>
+ffffffffc0200a8c:	44f71963          	bne	a4,a5,ffffffffc0200ede <buddy_system_check+0x6c0>
     assert((p0 + 8)->property == 8);
 ffffffffc0200a90:	1509a703          	lw	a4,336(s3)
 ffffffffc0200a94:	47a1                	li	a5,8
-ffffffffc0200a96:	42f71463          	bne	a4,a5,ffffffffc0200ebe <best_fit_check+0x6a0>
+ffffffffc0200a96:	42f71463          	bne	a4,a5,ffffffffc0200ebe <buddy_system_check+0x6a0>
     free_pages(p0, 8); // 32+
 ffffffffc0200a9a:	45a1                	li	a1,8
 ffffffffc0200a9c:	854e                	mv	a0,s3
 ffffffffc0200a9e:	1cb000ef          	jal	ra,ffffffffc0201468 <free_pages>
     assert(p0->property == 32);
 ffffffffc0200aa2:	0109a783          	lw	a5,16(s3)
-ffffffffc0200aa6:	3f879c63          	bne	a5,s8,ffffffffc0200e9e <best_fit_check+0x680>
+ffffffffc0200aa6:	3f879c63          	bne	a5,s8,ffffffffc0200e9e <buddy_system_check+0x680>
     // 检测链表顺序是否按照块的大小排序的
     p0 = alloc_pages(5);
 ffffffffc0200aaa:	4515                	li	a0,5
@@ -1587,7 +1587,7 @@ ffffffffc0200abc:	1ad000ef          	jal	ra,ffffffffc0201468 <free_pages>
     assert(list_next(&(free_list)) == &((p1 - 8)->page_link));
 ffffffffc0200ac0:	00893783          	ld	a5,8(s2)
 ffffffffc0200ac4:	ed8b8b93          	addi	s7,s7,-296
-ffffffffc0200ac8:	3b779b63          	bne	a5,s7,ffffffffc0200e7e <best_fit_check+0x660>
+ffffffffc0200ac8:	3b779b63          	bne	a5,s7,ffffffffc0200e7e <buddy_system_check+0x660>
     free_pages(p0, 5);
 ffffffffc0200acc:	854e                	mv	a0,s3
 ffffffffc0200ace:	4595                	li	a1,5
@@ -1595,7 +1595,7 @@ ffffffffc0200ad0:	199000ef          	jal	ra,ffffffffc0201468 <free_pages>
     assert(list_next(&(free_list)) == &(p0->page_link));
 ffffffffc0200ad4:	00893783          	ld	a5,8(s2)
 ffffffffc0200ad8:	09e1                	addi	s3,s3,24
-ffffffffc0200ada:	31379263          	bne	a5,s3,ffffffffc0200dde <best_fit_check+0x5c0>
+ffffffffc0200ada:	31379263          	bne	a5,s3,ffffffffc0200dde <buddy_system_check+0x5c0>
 
     p0 = alloc_pages(5);
 ffffffffc0200ade:	4515                	li	a0,5
@@ -1612,14 +1612,14 @@ ffffffffc0200af2:	177000ef          	jal	ra,ffffffffc0201468 <free_pages>
     assert(list_next(&(free_list)) == &(p0->page_link));
 ffffffffc0200af6:	00893783          	ld	a5,8(s2)
 ffffffffc0200afa:	09e1                	addi	s3,s3,24
-ffffffffc0200afc:	2cf99163          	bne	s3,a5,ffffffffc0200dbe <best_fit_check+0x5a0>
+ffffffffc0200afc:	2cf99163          	bne	s3,a5,ffffffffc0200dbe <buddy_system_check+0x5a0>
     free_pages(p1, 16);
 ffffffffc0200b00:	45c1                	li	a1,16
 ffffffffc0200b02:	855e                	mv	a0,s7
 ffffffffc0200b04:	165000ef          	jal	ra,ffffffffc0201468 <free_pages>
     assert(list_next(&(free_list)) == &(p0->page_link));
 ffffffffc0200b08:	00893783          	ld	a5,8(s2)
-ffffffffc0200b0c:	28f99963          	bne	s3,a5,ffffffffc0200d9e <best_fit_check+0x580>
+ffffffffc0200b0c:	28f99963          	bne	s3,a5,ffffffffc0200d9e <buddy_system_check+0x580>
 
     // 还原
     p0 = alloc_pages(26);
@@ -1628,7 +1628,7 @@ ffffffffc0200b12:	119000ef          	jal	ra,ffffffffc020142a <alloc_pages>
     //.........................................................
     assert(nr_free == 0);
 ffffffffc0200b16:	01092783          	lw	a5,16(s2)
-ffffffffc0200b1a:	32079263          	bnez	a5,ffffffffc0200e3e <best_fit_check+0x620>
+ffffffffc0200b1a:	32079263          	bnez	a5,ffffffffc0200e3e <buddy_system_check+0x620>
     nr_free = nr_free_store;
 
     free_list = free_list_store;
@@ -1646,28 +1646,28 @@ ffffffffc0200b30:	00893783          	ld	a5,8(s2)
 
     le = &free_list;
     while ((le = list_next(le)) != &free_list)
-ffffffffc0200b34:	03278163          	beq	a5,s2,ffffffffc0200b56 <best_fit_check+0x338>
+ffffffffc0200b34:	03278163          	beq	a5,s2,ffffffffc0200b56 <buddy_system_check+0x338>
     {
         assert(le->next->prev == le && le->prev->next == le);
 ffffffffc0200b38:	86be                	mv	a3,a5
 ffffffffc0200b3a:	679c                	ld	a5,8(a5)
 ffffffffc0200b3c:	6398                	ld	a4,0(a5)
-ffffffffc0200b3e:	04d71063          	bne	a4,a3,ffffffffc0200b7e <best_fit_check+0x360>
+ffffffffc0200b3e:	04d71063          	bne	a4,a3,ffffffffc0200b7e <buddy_system_check+0x360>
 ffffffffc0200b42:	6314                	ld	a3,0(a4)
 ffffffffc0200b44:	6694                	ld	a3,8(a3)
-ffffffffc0200b46:	02e69c63          	bne	a3,a4,ffffffffc0200b7e <best_fit_check+0x360>
+ffffffffc0200b46:	02e69c63          	bne	a3,a4,ffffffffc0200b7e <buddy_system_check+0x360>
         struct Page *p = le2page(le, page_link);
         count--, total -= p->property;
 ffffffffc0200b4a:	ff86a703          	lw	a4,-8(a3)
 ffffffffc0200b4e:	34fd                	addiw	s1,s1,-1
 ffffffffc0200b50:	9c19                	subw	s0,s0,a4
     while ((le = list_next(le)) != &free_list)
-ffffffffc0200b52:	ff2793e3          	bne	a5,s2,ffffffffc0200b38 <best_fit_check+0x31a>
+ffffffffc0200b52:	ff2793e3          	bne	a5,s2,ffffffffc0200b38 <buddy_system_check+0x31a>
     }
     assert(count == 0);
-ffffffffc0200b56:	44049463          	bnez	s1,ffffffffc0200f9e <best_fit_check+0x780>
+ffffffffc0200b56:	44049463          	bnez	s1,ffffffffc0200f9e <buddy_system_check+0x780>
     assert(total == 0);
-ffffffffc0200b5a:	2a041263          	bnez	s0,ffffffffc0200dfe <best_fit_check+0x5e0>
+ffffffffc0200b5a:	2a041263          	bnez	s0,ffffffffc0200dfe <buddy_system_check+0x5e0>
 }
 ffffffffc0200b5e:	60a6                	ld	ra,72(sp)
 ffffffffc0200b60:	6406                	ld	s0,64(sp)
@@ -1686,7 +1686,7 @@ ffffffffc0200b76:	4981                	li	s3,0
     int count = 0, total = 0;
 ffffffffc0200b78:	4401                	li	s0,0
 ffffffffc0200b7a:	4481                	li	s1,0
-ffffffffc0200b7c:	b1dd                	j	ffffffffc0200862 <best_fit_check+0x44>
+ffffffffc0200b7c:	b1dd                	j	ffffffffc0200862 <buddy_system_check+0x44>
         assert(le->next->prev == le && le->prev->next == le);
 ffffffffc0200b7e:	00002697          	auipc	a3,0x2
 ffffffffc0200b82:	a8a68693          	addi	a3,a3,-1398 # ffffffffc0202608 <commands+0x7e0>
@@ -1723,7 +1723,7 @@ ffffffffc0200bee:	0eb00593          	li	a1,235
 ffffffffc0200bf2:	00001517          	auipc	a0,0x1
 ffffffffc0200bf6:	75650513          	addi	a0,a0,1878 # ffffffffc0202348 <commands+0x520>
 ffffffffc0200bfa:	ef0ff0ef          	jal	ra,ffffffffc02002ea <__panic>
-    assert(nr_free == 3);//确保释放后，空闲页面数量正确
+    assert(nr_free == 3);//确保释放后，空闲页面数量正确.
 ffffffffc0200bfe:	00002697          	auipc	a3,0x2
 ffffffffc0200c02:	8c268693          	addi	a3,a3,-1854 # ffffffffc02024c0 <commands+0x698>
 ffffffffc0200c06:	00001617          	auipc	a2,0x1
@@ -2039,12 +2039,12 @@ ffffffffc0201052:	00001517          	auipc	a0,0x1
 ffffffffc0201056:	2f650513          	addi	a0,a0,758 # ffffffffc0202348 <commands+0x520>
 ffffffffc020105a:	a90ff0ef          	jal	ra,ffffffffc02002ea <__panic>
 
-ffffffffc020105e <best_fit_free_pages>:
+ffffffffc020105e <buddy_system_free_pages>:
 {
 ffffffffc020105e:	1141                	addi	sp,sp,-16
 ffffffffc0201060:	e406                	sd	ra,8(sp)
     assert(n > 0);
-ffffffffc0201062:	18058a63          	beqz	a1,ffffffffc02011f6 <best_fit_free_pages+0x198>
+ffffffffc0201062:	18058a63          	beqz	a1,ffffffffc02011f6 <buddy_system_free_pages+0x198>
     while (num > 1)
 ffffffffc0201066:	4605                	li	a2,1
 ffffffffc0201068:	87ae                	mv	a5,a1
@@ -2052,18 +2052,18 @@ ffffffffc0201068:	87ae                	mv	a5,a1
 ffffffffc020106a:	4701                	li	a4,0
     while (num > 1)
 ffffffffc020106c:	4685                	li	a3,1
-ffffffffc020106e:	00c58d63          	beq	a1,a2,ffffffffc0201088 <best_fit_free_pages+0x2a>
+ffffffffc020106e:	00c58d63          	beq	a1,a2,ffffffffc0201088 <buddy_system_free_pages+0x2a>
         num >>= 1; // 右移一位，相当于除以2
 ffffffffc0201072:	8385                	srli	a5,a5,0x1
         exp++;
 ffffffffc0201074:	0705                	addi	a4,a4,1
     while (num > 1)
-ffffffffc0201076:	fed79ee3          	bne	a5,a3,ffffffffc0201072 <best_fit_free_pages+0x14>
+ffffffffc0201076:	fed79ee3          	bne	a5,a3,ffffffffc0201072 <buddy_system_free_pages+0x14>
     return (size_t)(1 << exp);// 无符号整数类型
 ffffffffc020107a:	4785                	li	a5,1
 ffffffffc020107c:	00e7973b          	sllw	a4,a5,a4
     if (size < n)
-ffffffffc0201080:	00b77463          	bgeu	a4,a1,ffffffffc0201088 <best_fit_free_pages+0x2a>
+ffffffffc0201080:	00b77463          	bgeu	a4,a1,ffffffffc0201088 <buddy_system_free_pages+0x2a>
         n = 2 * size;
 ffffffffc0201084:	00171593          	slli	a1,a4,0x1
     for (; p != base + n; p++)
@@ -2072,14 +2072,14 @@ ffffffffc020108c:	96ae                	add	a3,a3,a1
 ffffffffc020108e:	068e                	slli	a3,a3,0x3
 ffffffffc0201090:	96aa                	add	a3,a3,a0
 ffffffffc0201092:	87aa                	mv	a5,a0
-ffffffffc0201094:	02d50263          	beq	a0,a3,ffffffffc02010b8 <best_fit_free_pages+0x5a>
+ffffffffc0201094:	02d50263          	beq	a0,a3,ffffffffc02010b8 <buddy_system_free_pages+0x5a>
 ffffffffc0201098:	6798                	ld	a4,8(a5)
         assert(!PageReserved(p) && !PageProperty(p));
 ffffffffc020109a:	8b05                	andi	a4,a4,1
-ffffffffc020109c:	12071d63          	bnez	a4,ffffffffc02011d6 <best_fit_free_pages+0x178>
+ffffffffc020109c:	12071d63          	bnez	a4,ffffffffc02011d6 <buddy_system_free_pages+0x178>
 ffffffffc02010a0:	6798                	ld	a4,8(a5)
 ffffffffc02010a2:	8b09                	andi	a4,a4,2
-ffffffffc02010a4:	12071963          	bnez	a4,ffffffffc02011d6 <best_fit_free_pages+0x178>
+ffffffffc02010a4:	12071963          	bnez	a4,ffffffffc02011d6 <buddy_system_free_pages+0x178>
         p->flags = 0;
 ffffffffc02010a8:	0007b423          	sd	zero,8(a5)
 
@@ -2091,7 +2091,7 @@ static inline void set_page_ref(struct Page *page, int val) { page->ref = val; }
 ffffffffc02010ac:	0007a023          	sw	zero,0(a5)
     for (; p != base + n; p++)
 ffffffffc02010b0:	02878793          	addi	a5,a5,40
-ffffffffc02010b4:	fed792e3          	bne	a5,a3,ffffffffc0201098 <best_fit_free_pages+0x3a>
+ffffffffc02010b4:	fed792e3          	bne	a5,a3,ffffffffc0201098 <buddy_system_free_pages+0x3a>
     base->property = n;
 ffffffffc02010b8:	2581                	sext.w	a1,a1
 ffffffffc02010ba:	c90c                	sw	a1,16(a0)
@@ -2108,21 +2108,21 @@ ffffffffc02010d2:	00883783          	ld	a5,8(a6)
 ffffffffc02010d6:	9db9                	addw	a1,a1,a4
 ffffffffc02010d8:	00b82823          	sw	a1,16(a6)
     for (le = list_next(&free_list); le != &free_list; le = list_next(le))
-ffffffffc02010dc:	0f078b63          	beq	a5,a6,ffffffffc02011d2 <best_fit_free_pages+0x174>
+ffffffffc02010dc:	0f078b63          	beq	a5,a6,ffffffffc02011d2 <buddy_system_free_pages+0x174>
         if ((base->property < p->property) || (base->property == p->property && base < p))
 ffffffffc02010e0:	4910                	lw	a2,16(a0)
-ffffffffc02010e2:	a021                	j	ffffffffc02010ea <best_fit_free_pages+0x8c>
+ffffffffc02010e2:	a021                	j	ffffffffc02010ea <buddy_system_free_pages+0x8c>
 ffffffffc02010e4:	679c                	ld	a5,8(a5)
     for (le = list_next(&free_list); le != &free_list; le = list_next(le))
-ffffffffc02010e6:	01078c63          	beq	a5,a6,ffffffffc02010fe <best_fit_free_pages+0xa0>
+ffffffffc02010e6:	01078c63          	beq	a5,a6,ffffffffc02010fe <buddy_system_free_pages+0xa0>
         if ((base->property < p->property) || (base->property == p->property && base < p))
 ffffffffc02010ea:	ff87a703          	lw	a4,-8(a5)
         p = le2page(le, page_link);
 ffffffffc02010ee:	fe878693          	addi	a3,a5,-24
         if ((base->property < p->property) || (base->property == p->property && base < p))
-ffffffffc02010f2:	00e66663          	bltu	a2,a4,ffffffffc02010fe <best_fit_free_pages+0xa0>
-ffffffffc02010f6:	fee617e3          	bne	a2,a4,ffffffffc02010e4 <best_fit_free_pages+0x86>
-ffffffffc02010fa:	fed575e3          	bgeu	a0,a3,ffffffffc02010e4 <best_fit_free_pages+0x86>
+ffffffffc02010f2:	00e66663          	bltu	a2,a4,ffffffffc02010fe <buddy_system_free_pages+0xa0>
+ffffffffc02010f6:	fee617e3          	bne	a2,a4,ffffffffc02010e4 <buddy_system_free_pages+0x86>
+ffffffffc02010fa:	fed575e3          	bgeu	a0,a3,ffffffffc02010e4 <buddy_system_free_pages+0x86>
     __list_add(elm, listelm->prev, listelm);
 ffffffffc02010fe:	6398                	ld	a4,0(a5)
     list_add_before(le, &(base->page_link));
@@ -2141,22 +2141,22 @@ ffffffffc020110a:	e70c                	sd	a1,8(a4)
 ffffffffc020110c:	f11c                	sd	a5,32(a0)
     elm->prev = prev;
 ffffffffc020110e:	ed18                	sd	a4,24(a0)
-ffffffffc0201110:	08c88963          	beq	a7,a2,ffffffffc02011a2 <best_fit_free_pages+0x144>
+ffffffffc0201110:	08c88963          	beq	a7,a2,ffffffffc02011a2 <buddy_system_free_pages+0x144>
     __op_bit(and, __NOT, nr, ((volatile unsigned long *)addr));
 ffffffffc0201114:	55f5                	li	a1,-3
     while (le != &free_list)
-ffffffffc0201116:	01079863          	bne	a5,a6,ffffffffc0201126 <best_fit_free_pages+0xc8>
-ffffffffc020111a:	a0b9                	j	ffffffffc0201168 <best_fit_free_pages+0x10a>
+ffffffffc0201116:	01079863          	bne	a5,a6,ffffffffc0201126 <buddy_system_free_pages+0xc8>
+ffffffffc020111a:	a0b9                	j	ffffffffc0201168 <buddy_system_free_pages+0x10a>
         else if (base->property < p->property)
-ffffffffc020111c:	04e6e963          	bltu	a3,a4,ffffffffc020116e <best_fit_free_pages+0x110>
+ffffffffc020111c:	04e6e963          	bltu	a3,a4,ffffffffc020116e <buddy_system_free_pages+0x110>
     return listelm->next;
 ffffffffc0201120:	679c                	ld	a5,8(a5)
     while (le != &free_list)
-ffffffffc0201122:	05078363          	beq	a5,a6,ffffffffc0201168 <best_fit_free_pages+0x10a>
+ffffffffc0201122:	05078363          	beq	a5,a6,ffffffffc0201168 <buddy_system_free_pages+0x10a>
         if ((p->property == base->property) && (base + base->property == p))
 ffffffffc0201126:	ff87a703          	lw	a4,-8(a5)
 ffffffffc020112a:	4914                	lw	a3,16(a0)
-ffffffffc020112c:	fed718e3          	bne	a4,a3,ffffffffc020111c <best_fit_free_pages+0xbe>
+ffffffffc020112c:	fed718e3          	bne	a4,a3,ffffffffc020111c <buddy_system_free_pages+0xbe>
 ffffffffc0201130:	02071613          	slli	a2,a4,0x20
 ffffffffc0201134:	9201                	srli	a2,a2,0x20
 ffffffffc0201136:	00261693          	slli	a3,a2,0x2
@@ -2166,7 +2166,7 @@ ffffffffc020113c:	068e                	slli	a3,a3,0x3
 ffffffffc020113e:	fe878613          	addi	a2,a5,-24
         if ((p->property == base->property) && (base + base->property == p))
 ffffffffc0201142:	96aa                	add	a3,a3,a0
-ffffffffc0201144:	fcd61ee3          	bne	a2,a3,ffffffffc0201120 <best_fit_free_pages+0xc2>
+ffffffffc0201144:	fcd61ee3          	bne	a2,a3,ffffffffc0201120 <buddy_system_free_pages+0xc2>
             base->property += p->property;
 ffffffffc0201148:	0017171b          	slliw	a4,a4,0x1
 ffffffffc020114c:	c918                	sw	a4,16(a0)
@@ -2189,7 +2189,7 @@ ffffffffc0201160:	679c                	ld	a5,8(a5)
     next->prev = prev;
 ffffffffc0201162:	e314                	sd	a3,0(a4)
     while (le != &free_list)
-ffffffffc0201164:	fd0791e3          	bne	a5,a6,ffffffffc0201126 <best_fit_free_pages+0xc8>
+ffffffffc0201164:	fd0791e3          	bne	a5,a6,ffffffffc0201126 <buddy_system_free_pages+0xc8>
 }
 ffffffffc0201168:	60a2                	ld	ra,8(sp)
 ffffffffc020116a:	0141                	addi	sp,sp,16
@@ -2199,12 +2199,12 @@ ffffffffc020116e:	7110                	ld	a2,32(a0)
             while (le2page(targetLe, page_link)->property < base->property)
 ffffffffc0201170:	ff862703          	lw	a4,-8(a2)
 ffffffffc0201174:	87b2                	mv	a5,a2
-ffffffffc0201176:	fed779e3          	bgeu	a4,a3,ffffffffc0201168 <best_fit_free_pages+0x10a>
+ffffffffc0201176:	fed779e3          	bgeu	a4,a3,ffffffffc0201168 <buddy_system_free_pages+0x10a>
 ffffffffc020117a:	679c                	ld	a5,8(a5)
 ffffffffc020117c:	ff87a703          	lw	a4,-8(a5)
-ffffffffc0201180:	fed76de3          	bltu	a4,a3,ffffffffc020117a <best_fit_free_pages+0x11c>
+ffffffffc0201180:	fed76de3          	bltu	a4,a3,ffffffffc020117a <buddy_system_free_pages+0x11c>
             if (targetLe != list_next(&base->page_link))
-ffffffffc0201184:	fef602e3          	beq	a2,a5,ffffffffc0201168 <best_fit_free_pages+0x10a>
+ffffffffc0201184:	fef602e3          	beq	a2,a5,ffffffffc0201168 <buddy_system_free_pages+0x10a>
     __list_del(listelm->prev, listelm->next);
 ffffffffc0201188:	6d18                	ld	a4,24(a0)
                 list_add_before(targetLe, &(base->page_link));
@@ -2233,7 +2233,7 @@ ffffffffc02011a8:	00259713          	slli	a4,a1,0x2
 ffffffffc02011ac:	972e                	add	a4,a4,a1
 ffffffffc02011ae:	070e                	slli	a4,a4,0x3
 ffffffffc02011b0:	9736                	add	a4,a4,a3
-ffffffffc02011b2:	f6e511e3          	bne	a0,a4,ffffffffc0201114 <best_fit_free_pages+0xb6>
+ffffffffc02011b2:	f6e511e3          	bne	a0,a4,ffffffffc0201114 <buddy_system_free_pages+0xb6>
         p->property += base->property;
 ffffffffc02011b6:	0016161b          	slliw	a2,a2,0x1
 ffffffffc02011ba:	ca90                	sw	a2,16(a3)
@@ -2249,10 +2249,10 @@ ffffffffc02011ca:	8536                	mv	a0,a3
 ffffffffc02011cc:	e618                	sd	a4,8(a2)
     next->prev = prev;
 ffffffffc02011ce:	e310                	sd	a2,0(a4)
-ffffffffc02011d0:	b791                	j	ffffffffc0201114 <best_fit_free_pages+0xb6>
+ffffffffc02011d0:	b791                	j	ffffffffc0201114 <buddy_system_free_pages+0xb6>
     if ((p->property == base->property) && (p + p->property == base))
 ffffffffc02011d2:	4910                	lw	a2,16(a0)
-ffffffffc02011d4:	b72d                	j	ffffffffc02010fe <best_fit_free_pages+0xa0>
+ffffffffc02011d4:	b72d                	j	ffffffffc02010fe <buddy_system_free_pages+0xa0>
         assert(!PageReserved(p) && !PageProperty(p));
 ffffffffc02011d6:	00001697          	auipc	a3,0x1
 ffffffffc02011da:	48a68693          	addi	a3,a3,1162 # ffffffffc0202660 <commands+0x838>
@@ -2272,12 +2272,12 @@ ffffffffc020120a:	00001517          	auipc	a0,0x1
 ffffffffc020120e:	13e50513          	addi	a0,a0,318 # ffffffffc0202348 <commands+0x520>
 ffffffffc0201212:	8d8ff0ef          	jal	ra,ffffffffc02002ea <__panic>
 
-ffffffffc0201216 <best_fit_alloc_pages>:
+ffffffffc0201216 <buddy_system_alloc_pages>:
 {
 ffffffffc0201216:	1141                	addi	sp,sp,-16
 ffffffffc0201218:	e406                	sd	ra,8(sp)
     assert(n > 0);
-ffffffffc020121a:	c96d                	beqz	a0,ffffffffc020130c <best_fit_alloc_pages+0xf6>
+ffffffffc020121a:	c96d                	beqz	a0,ffffffffc020130c <buddy_system_alloc_pages+0xf6>
     while (num > 1)
 ffffffffc020121c:	4585                	li	a1,1
 ffffffffc020121e:	862a                	mv	a2,a0
@@ -2286,18 +2286,18 @@ ffffffffc0201220:	87aa                	mv	a5,a0
 ffffffffc0201222:	4701                	li	a4,0
     while (num > 1)
 ffffffffc0201224:	4685                	li	a3,1
-ffffffffc0201226:	00b50d63          	beq	a0,a1,ffffffffc0201240 <best_fit_alloc_pages+0x2a>
+ffffffffc0201226:	00b50d63          	beq	a0,a1,ffffffffc0201240 <buddy_system_alloc_pages+0x2a>
         num >>= 1; // 右移一位，相当于除以2
 ffffffffc020122a:	8385                	srli	a5,a5,0x1
         exp++;
 ffffffffc020122c:	0705                	addi	a4,a4,1
     while (num > 1)
-ffffffffc020122e:	fed79ee3          	bne	a5,a3,ffffffffc020122a <best_fit_alloc_pages+0x14>
+ffffffffc020122e:	fed79ee3          	bne	a5,a3,ffffffffc020122a <buddy_system_alloc_pages+0x14>
     return (size_t)(1 << exp);// 无符号整数类型
 ffffffffc0201232:	4785                	li	a5,1
 ffffffffc0201234:	00e7973b          	sllw	a4,a5,a4
     if (size < n)
-ffffffffc0201238:	00c77463          	bgeu	a4,a2,ffffffffc0201240 <best_fit_alloc_pages+0x2a>
+ffffffffc0201238:	00c77463          	bgeu	a4,a2,ffffffffc0201240 <buddy_system_alloc_pages+0x2a>
         n = 2 * size;
 ffffffffc020123c:	00171613          	slli	a2,a4,0x1
     if (n > nr_free)
@@ -2306,19 +2306,19 @@ ffffffffc0201244:	dd088893          	addi	a7,a7,-560 # ffffffffc0206010 <free_ar
 ffffffffc0201248:	0108a583          	lw	a1,16(a7)
 ffffffffc020124c:	02059793          	slli	a5,a1,0x20
 ffffffffc0201250:	9381                	srli	a5,a5,0x20
-ffffffffc0201252:	00c7ee63          	bltu	a5,a2,ffffffffc020126e <best_fit_alloc_pages+0x58>
+ffffffffc0201252:	00c7ee63          	bltu	a5,a2,ffffffffc020126e <buddy_system_alloc_pages+0x58>
     list_entry_t *le = &free_list;
 ffffffffc0201256:	8746                	mv	a4,a7
-ffffffffc0201258:	a801                	j	ffffffffc0201268 <best_fit_alloc_pages+0x52>
+ffffffffc0201258:	a801                	j	ffffffffc0201268 <buddy_system_alloc_pages+0x52>
         if (p->property >= n){
 ffffffffc020125a:	ff872683          	lw	a3,-8(a4)
 ffffffffc020125e:	02069793          	slli	a5,a3,0x20
 ffffffffc0201262:	9381                	srli	a5,a5,0x20
-ffffffffc0201264:	00c7f963          	bgeu	a5,a2,ffffffffc0201276 <best_fit_alloc_pages+0x60>
+ffffffffc0201264:	00c7f963          	bgeu	a5,a2,ffffffffc0201276 <buddy_system_alloc_pages+0x60>
     return listelm->next;
 ffffffffc0201268:	6718                	ld	a4,8(a4)
     while ((le = list_next(le)) != &free_list)
-ffffffffc020126a:	ff1718e3          	bne	a4,a7,ffffffffc020125a <best_fit_alloc_pages+0x44>
+ffffffffc020126a:	ff1718e3          	bne	a4,a7,ffffffffc020125a <buddy_system_alloc_pages+0x44>
 }
 ffffffffc020126e:	60a2                	ld	ra,8(sp)
         return NULL;
@@ -2331,7 +2331,7 @@ ffffffffc0201276:	fe870513          	addi	a0,a4,-24
     __op_bit(or, __NOP, nr, ((volatile unsigned long *)addr));
 ffffffffc020127a:	4309                	li	t1,2
         while (page->property > n)
-ffffffffc020127c:	04f67563          	bgeu	a2,a5,ffffffffc02012c6 <best_fit_alloc_pages+0xb0>
+ffffffffc020127c:	04f67563          	bgeu	a2,a5,ffffffffc02012c6 <buddy_system_alloc_pages+0xb0>
             page->property /= 2;
 ffffffffc0201280:	0016d69b          	srliw	a3,a3,0x1
             struct Page *p = page + page->property;
@@ -2364,7 +2364,7 @@ ffffffffc02012b6:	ef98                	sd	a4,24(a5)
         while (page->property > n)
 ffffffffc02012b8:	02069793          	slli	a5,a3,0x20
 ffffffffc02012bc:	9381                	srli	a5,a5,0x20
-ffffffffc02012be:	fcf661e3          	bltu	a2,a5,ffffffffc0201280 <best_fit_alloc_pages+0x6a>
+ffffffffc02012be:	fcf661e3          	bltu	a2,a5,ffffffffc0201280 <buddy_system_alloc_pages+0x6a>
         nr_free -= n;
 ffffffffc02012c2:	0108a583          	lw	a1,16(a7)
 ffffffffc02012c6:	9d91                	subw	a1,a1,a2
@@ -2375,7 +2375,7 @@ ffffffffc02012ce:	ff070693          	addi	a3,a4,-16
 ffffffffc02012d2:	60f6b02f          	amoand.d	zero,a5,(a3)
         assert(page->property == n);
 ffffffffc02012d6:	ff876783          	lwu	a5,-8(a4)
-ffffffffc02012da:	00f61963          	bne	a2,a5,ffffffffc02012ec <best_fit_alloc_pages+0xd6>
+ffffffffc02012da:	00f61963          	bne	a2,a5,ffffffffc02012ec <buddy_system_alloc_pages+0xd6>
     __list_del(listelm->prev, listelm->next);
 ffffffffc02012de:	6314                	ld	a3,0(a4)
 ffffffffc02012e0:	671c                	ld	a5,8(a4)
@@ -2406,30 +2406,30 @@ ffffffffc0201320:	00001517          	auipc	a0,0x1
 ffffffffc0201324:	02850513          	addi	a0,a0,40 # ffffffffc0202348 <commands+0x520>
 ffffffffc0201328:	fc3fe0ef          	jal	ra,ffffffffc02002ea <__panic>
 
-ffffffffc020132c <best_fit_init_memmap>:
+ffffffffc020132c <buddy_system_init_memmap>:
 {
 ffffffffc020132c:	1141                	addi	sp,sp,-16
 ffffffffc020132e:	e406                	sd	ra,8(sp)
     assert(n > 0);
-ffffffffc0201330:	cde9                	beqz	a1,ffffffffc020140a <best_fit_init_memmap+0xde>
+ffffffffc0201330:	cde9                	beqz	a1,ffffffffc020140a <buddy_system_init_memmap+0xde>
     for (; p != base + n; p++)
 ffffffffc0201332:	00259813          	slli	a6,a1,0x2
 ffffffffc0201336:	982e                	add	a6,a6,a1
 ffffffffc0201338:	080e                	slli	a6,a6,0x3
 ffffffffc020133a:	982a                	add	a6,a6,a0
-ffffffffc020133c:	01050f63          	beq	a0,a6,ffffffffc020135a <best_fit_init_memmap+0x2e>
+ffffffffc020133c:	01050f63          	beq	a0,a6,ffffffffc020135a <buddy_system_init_memmap+0x2e>
     return (((*(volatile unsigned long *)addr) >> nr) & 1);
 ffffffffc0201340:	651c                	ld	a5,8(a0)
         assert(PageReserved(p));// 确保页框是保留的
 ffffffffc0201342:	8b85                	andi	a5,a5,1
-ffffffffc0201344:	c3dd                	beqz	a5,ffffffffc02013ea <best_fit_init_memmap+0xbe>
+ffffffffc0201344:	c3dd                	beqz	a5,ffffffffc02013ea <buddy_system_init_memmap+0xbe>
         p->flags = p->property = 0;
 ffffffffc0201346:	00052823          	sw	zero,16(a0)
 ffffffffc020134a:	00053423          	sd	zero,8(a0)
 ffffffffc020134e:	00052023          	sw	zero,0(a0)
     for (; p != base + n; p++)
 ffffffffc0201352:	02850513          	addi	a0,a0,40
-ffffffffc0201356:	ff0515e3          	bne	a0,a6,ffffffffc0201340 <best_fit_init_memmap+0x14>
+ffffffffc0201356:	ff0515e3          	bne	a0,a6,ffffffffc0201340 <buddy_system_init_memmap+0x14>
     nr_free += n;
 ffffffffc020135a:	00005517          	auipc	a0,0x5
 ffffffffc020135e:	cb650513          	addi	a0,a0,-842 # ffffffffc0206010 <free_area>
@@ -2448,13 +2448,13 @@ ffffffffc020136e:	87ae                	mv	a5,a1
     size_t exp = 0;
 ffffffffc0201370:	4701                	li	a4,0
     while (num > 1)
-ffffffffc0201372:	07158763          	beq	a1,a7,ffffffffc02013e0 <best_fit_init_memmap+0xb4>
+ffffffffc0201372:	07158763          	beq	a1,a7,ffffffffc02013e0 <buddy_system_init_memmap+0xb4>
         num >>= 1; // 右移一位，相当于除以2
 ffffffffc0201376:	8385                	srli	a5,a5,0x1
         exp++;
 ffffffffc0201378:	0705                	addi	a4,a4,1
     while (num > 1)
-ffffffffc020137a:	ff179ee3          	bne	a5,a7,ffffffffc0201376 <best_fit_init_memmap+0x4a>
+ffffffffc020137a:	ff179ee3          	bne	a5,a7,ffffffffc0201376 <buddy_system_init_memmap+0x4a>
     return (size_t)(1 << exp);// 无符号整数类型
 ffffffffc020137e:	00ee163b          	sllw	a2,t3,a4
         base -= curr_n;
@@ -2473,21 +2473,21 @@ ffffffffc020139a:	4067b02f          	amoor.d	zero,t1,(a5)
     return listelm->next;
 ffffffffc020139e:	651c                	ld	a5,8(a0)
         for(le = list_next(&free_list); le != &free_list; le = list_next(le))
-ffffffffc02013a0:	02a78263          	beq	a5,a0,ffffffffc02013c4 <best_fit_init_memmap+0x98>
+ffffffffc02013a0:	02a78263          	beq	a5,a0,ffffffffc02013c4 <buddy_system_init_memmap+0x98>
             if ((page->property > base->property) || (page->property == base->property && page > base))
 ffffffffc02013a4:	01082683          	lw	a3,16(a6)
-ffffffffc02013a8:	a021                	j	ffffffffc02013b0 <best_fit_init_memmap+0x84>
+ffffffffc02013a8:	a021                	j	ffffffffc02013b0 <buddy_system_init_memmap+0x84>
 ffffffffc02013aa:	679c                	ld	a5,8(a5)
         for(le = list_next(&free_list); le != &free_list; le = list_next(le))
-ffffffffc02013ac:	00a78c63          	beq	a5,a0,ffffffffc02013c4 <best_fit_init_memmap+0x98>
+ffffffffc02013ac:	00a78c63          	beq	a5,a0,ffffffffc02013c4 <buddy_system_init_memmap+0x98>
             if ((page->property > base->property) || (page->property == base->property && page > base))
 ffffffffc02013b0:	ff87a703          	lw	a4,-8(a5)
-ffffffffc02013b4:	00e6e863          	bltu	a3,a4,ffffffffc02013c4 <best_fit_init_memmap+0x98>
-ffffffffc02013b8:	fed719e3          	bne	a4,a3,ffffffffc02013aa <best_fit_init_memmap+0x7e>
+ffffffffc02013b4:	00e6e863          	bltu	a3,a4,ffffffffc02013c4 <buddy_system_init_memmap+0x98>
+ffffffffc02013b8:	fed719e3          	bne	a4,a3,ffffffffc02013aa <buddy_system_init_memmap+0x7e>
             struct Page *page = le2page(le, page_link);//获取当前页框
 ffffffffc02013bc:	fe878713          	addi	a4,a5,-24
             if ((page->property > base->property) || (page->property == base->property && page > base))
-ffffffffc02013c0:	fee875e3          	bgeu	a6,a4,ffffffffc02013aa <best_fit_init_memmap+0x7e>
+ffffffffc02013c0:	fee875e3          	bgeu	a6,a4,ffffffffc02013aa <buddy_system_init_memmap+0x7e>
     __list_add(elm, listelm->prev, listelm);
 ffffffffc02013c4:	6398                	ld	a4,0(a5)
         list_add_before(le, &(base->page_link));
@@ -2502,7 +2502,7 @@ ffffffffc02013d2:	00e83c23          	sd	a4,24(a6)
         n -= curr_n;
 ffffffffc02013d6:	8d91                	sub	a1,a1,a2
     while (n != 0)
-ffffffffc02013d8:	f9d9                	bnez	a1,ffffffffc020136e <best_fit_init_memmap+0x42>
+ffffffffc02013d8:	f9d9                	bnez	a1,ffffffffc020136e <buddy_system_init_memmap+0x42>
 }
 ffffffffc02013da:	60a2                	ld	ra,8(sp)
 ffffffffc02013dc:	0141                	addi	sp,sp,16
@@ -2511,7 +2511,7 @@ ffffffffc02013de:	8082                	ret
 ffffffffc02013e0:	4605                	li	a2,1
 ffffffffc02013e2:	4705                	li	a4,1
 ffffffffc02013e4:	fd800793          	li	a5,-40
-ffffffffc02013e8:	b765                	j	ffffffffc0201390 <best_fit_init_memmap+0x64>
+ffffffffc02013e8:	b765                	j	ffffffffc0201390 <buddy_system_init_memmap+0x64>
         assert(PageReserved(p));// 确保页框是保留的
 ffffffffc02013ea:	00001697          	auipc	a3,0x1
 ffffffffc02013ee:	2b668693          	addi	a3,a3,694 # ffffffffc02026a0 <commands+0x878>

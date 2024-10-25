@@ -24,7 +24,7 @@ get_exp(size_t num)
 
 // 初始化内存管理器
 static void
-best_fit_init(void)
+buddy_system_init(void)
 {
     list_init(&free_list);
     nr_free = 0;
@@ -32,7 +32,7 @@ best_fit_init(void)
 
 // 初始化内存映射
 static void
-best_fit_init_memmap(struct Page *base, size_t n)// 参数 base: 指向要初始化的第一个页框的指针  参数 n: 要初始化的页框数量
+buddy_system_init_memmap(struct Page *base, size_t n)// 参数 base: 指向要初始化的第一个页框的指针  参数 n: 要初始化的页框数量
 {
     assert(n > 0);
     struct Page *p = base;
@@ -71,7 +71,7 @@ best_fit_init_memmap(struct Page *base, size_t n)// 参数 base: 指向要初始
 }
 
 static struct Page *
-best_fit_alloc_pages(size_t n)
+buddy_system_alloc_pages(size_t n)
 {
     assert(n > 0);
     // 向上取整来分配合适的内存
@@ -115,7 +115,7 @@ best_fit_alloc_pages(size_t n)
 }
 
 static void
-best_fit_free_pages(struct Page *base, size_t n)
+buddy_system_free_pages(struct Page *base, size_t n)
 {
     assert(n > 0);
     // 向上取整来分配合适的内存
@@ -197,7 +197,7 @@ best_fit_free_pages(struct Page *base, size_t n)
 }
 
 static size_t
-best_fit_nr_free_pages(void)
+buddy_system_nr_free_pages(void)
 {
     return nr_free;
 }
@@ -255,7 +255,7 @@ basic_check(void)
 }
 
 static void
-best_fit_check(void)
+buddy_system_check(void)
 {
     int count = 0, total = 0;
     list_entry_t *le = &free_list;
@@ -342,10 +342,10 @@ best_fit_check(void)
 // 这个结构体在
 const struct pmm_manager best_fit_pmm_manager = {
     .name = "best_fit_pmm_manager",
-    .init = best_fit_init,
-    .init_memmap = best_fit_init_memmap,
-    .alloc_pages = best_fit_alloc_pages,
-    .free_pages = best_fit_free_pages,
-    .nr_free_pages = best_fit_nr_free_pages,
-    .check = best_fit_check,
+    .init = buddy_system_init,
+    .init_memmap = buddy_system_init_memmap,
+    .alloc_pages = buddy_system_alloc_pages,
+    .free_pages = buddy_system_free_pages,
+    .nr_free_pages = buddy_system_nr_free_pages,
+    .check = buddy_system_check,
 };
