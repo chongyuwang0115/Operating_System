@@ -339,7 +339,7 @@ buddy_system_check(void)
     assert(total == 0);
 }
 
-// 这个结构体在
+// 这个结构体在.
 const struct pmm_manager best_fit_pmm_manager = {
     .name = "best_fit_pmm_manager",
     .init = buddy_system_init,
