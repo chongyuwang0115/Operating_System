@@ -11,8 +11,13 @@ struct mm_struct;
 
 // the virtual continuous memory area(vma), [vm_start, vm_end), 
 // addr belong to a vma means  vma.vm_start<= addr <vma.vm_end 
+/*
+    Page Directory Table（页面目录表）： PDT 是一种在x86架构的计算机系统中用于虚拟内存管理的数据结构。
+    X86历史遗迹，二级页表中页表的页表
+    下面的 pde 也是遗留，是PDT的项
+*/
 struct vma_struct {
-    struct mm_struct *vm_mm; // the set of vma using the same PDT 
+    struct mm_struct *vm_mm; // the set of vma using the same PDT
     uintptr_t vm_start;      // start addr of vma      
     uintptr_t vm_end;        // end addr of vma, not include the vm_end itself
     uint_t vm_flags;       // flags of vma

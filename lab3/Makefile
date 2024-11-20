@@ -1,4 +1,4 @@
-PROJ	:= lab3
+PROJ	:= lab2
 EMPTY	:=
 SPACE	:= $(EMPTY) $(EMPTY)
 SLASH	:= /
@@ -13,9 +13,6 @@ ifndef QEMU
 QEMU := qemu-system-riscv64
 endif
 
-ifndef SPIKE
-SPIKE := spike
-endif
 
 # eliminate default suffix rules
 .SUFFIXES: .c .S .h
@@ -29,11 +26,10 @@ HOSTCFLAGS	:= -Wall -O2
 
 GDB		:= $(GCCPREFIX)gdb
 
-CC		:= $(GCCPREFIX)gcc
-CFLAGS  := -mcmodel=medany -O2 -s -std=gnu99 -Wall -Wextra
-CFLAGS	+= -fno-builtin -nostdinc $(DEFS)
+CC		:= $(GCCPREFIX)gcc -g
+CFLAGS  := -mcmodel=medany -std=gnu99 -Wno-unused -Werror
+CFLAGS	+= -fno-builtin -Wall -O2 -nostdinc $(DEFS)
 CFLAGS	+= -fno-stack-protector -ffunction-sections -fdata-sections
-CFLAGS	+= -g
 CTYPE	:= c S
 
 LD      := $(GCCPREFIX)ld
@@ -64,7 +60,9 @@ include tools/function.mk
 
 listf_cc = $(call listf,$(1),$(CTYPE))
 
-
+# for cc
+add_files_cc = $(call add_files,$(1),$(CC),$(CFLAGS) $(3),$(2),$(4))
+create_target_cc = $(call create_target,$(1),$(2),$(3),$(CC),$(CFLAGS))
 
 # for hostcc
 add_files_host = $(call add_files,$(1),$(HOSTCC),$(HOSTCFLAGS),$(2),$(3))
@@ -82,21 +80,13 @@ match = $(shell echo $(2) | $(AWK) '{for(i=1;i<=NF;i++){if(match("$(1)","^"$$(i)
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 # include kernel/user
 
-INCLUDE	+= libs/
+INCLUDE	+= libs/ 
 
 CFLAGS	+= $(addprefix -I,$(INCLUDE))
-LIBDIR	+= libs
-CFLAGS2 := $(CFLAGS) -D ucore_test
-# for cc
-add_files_cc = $(call add_files,$(1),$(CC),$(CFLAGS) $(3),$(2),$(4))
-add_files_cc2 = $(call add_files,$(1),$(CC),$(CFLAGS2) $(3),$(2),$(4))
-create_target_cc = $(call create_target,$(1),$(2),$(3),$(CC),$(CFLAGS))
 
-ifeq ($(MAKECMDGOAL),test)
-$(call add_files_cc2,$(call listf_cc,$(LIBDIR)),libs,)
-else
+LIBDIR	+= libs
+
 $(call add_files_cc,$(call listf_cc,$(LIBDIR)),libs,)
-endif
 
 # -------------------------------------------------------------------
 # kernel
@@ -104,13 +94,14 @@ endif
 KINCLUDE	+= kern/debug/ \
 			   kern/driver/ \
 			   kern/trap/ \
+			   kern/libs/\
 			   kern/mm/ \
 			   kern/sync/ \
 			   kern/fs/
 
 KSRCDIR		+= kern/init \
-			   kern/libs \
 			   kern/debug \
+			   kern/libs \
 			   kern/driver \
 			   kern/trap \
 			   kern/mm \
@@ -139,8 +130,6 @@ $(call create_target,kernel)
 # create ucore.img
 UCOREIMG	:= $(call totarget,ucore.img)
 
-# $(UCOREIMG): $(kernel)
-#	cd ../../riscv-pk && rm -rf build && mkdir build && cd build && ../configure --prefix=$(RISCV) --host=riscv64-unknown-elf --with-payload=../../labcodes/$(PROJ)/$(kernel)  --disable-fp-emulation && make && cp bbl ../../labcodes/$(PROJ)/$(UCOREIMG)
 
 $(UCOREIMG): $(kernel)
 	$(OBJCOPY) $(kernel) --strip-all -O binary $@
@@ -168,7 +157,7 @@ TARGETS: $(TARGETS)
 
 .DEFAULT_GOAL := TARGETS
 
-.PHONY: qemu spike
+.PHONY: qemu 
 qemu: $(UCOREIMG) $(SWAPIMG) $(SFSIMG)
 #	$(V)$(QEMU) -kernel $(UCOREIMG) -nographic
 	$(V)$(QEMU) \
@@ -177,13 +166,13 @@ qemu: $(UCOREIMG) $(SWAPIMG) $(SFSIMG)
 		-bios default \
 		-device loader,file=$(UCOREIMG),addr=0x80200000
 
-debug: $(UCOREIMG) $(SWAPIMG) $(SFSIMG)
+debug:
 	$(V)$(QEMU) \
 		-machine virt \
 		-nographic \
 		-bios default \
-		-device loader,file=$(UCOREIMG),addr=0x80200000\
-		-s -S
+		-device loader,file=$(UCOREIMG),addr=0x80200000 \
+		-s -S 
 
 gdb:
 	riscv64-unknown-elf-gdb \
@@ -191,10 +180,16 @@ gdb:
     -ex 'set arch riscv:rv64' \
     -ex 'target remote localhost:1234'
 
-	
-test: qemu
-spike: $(UCOREIMG) $(SWAPIMG) $(SFSIMG)
-	$(V)$(SPIKE) $(UCOREIMG)
+
+test:
+	$(V)$(QEMU) \
+		-machine virt \
+		-nographic \
+		-bios default \
+		-device loader,file=$(UCOREIMG),addr=0x80200000\
+		-s -S &
+	riscv64-unknown-elf-gdb \
+	-x init.gdb
 
 .PHONY: grade touch
 
