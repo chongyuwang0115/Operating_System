@@ -381,7 +381,10 @@ do_pgfault(struct mm_struct *mm, uint32_t error_code, uintptr_t addr) {
             //map of phy addr <--->
             //logical addr
             //(3) make the page swappable.
-            page->pra_vaddr = addr;
+            swap_in(mm, addr, &page);//分配一个内存页并从磁盘上的交换文件加载数据到该内存页
+            page_insert(mm->pgdir,page,addr,perm);//建立内存页 page 的物理地址和线性地址 addr 之间的映射
+            swap_map_swappable(mm, addr, page, 1);//将页面标记为可交换
+            page->pra_vaddr = addr;//跟踪页面映射的线性地址
         } else {
             cprintf("no swap_init_ok but ptep is %x, failed\n", *ptep);
             goto failed;

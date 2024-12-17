@@ -7,7 +7,7 @@
 
 static inline bool __intr_save(void) {
     if (read_csr(sstatus) & SSTATUS_SIE) {
-        intr_disable();
+        intr_disable();  // 禁用中断
         return 1;
     }
     return 0;
